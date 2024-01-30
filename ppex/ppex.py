@@ -13,7 +13,7 @@ base_includes = ["stdio.h",
 def render_headers(includes):
     headers = []
     for include in includes:
-        if include.startswith("./") or include.startswith("../"):
+        if include.startswith("/") or include.startswith("./") or include.startswith("../"):
             include = os.path.join(os.getcwd(), include)
             headers.append(f'#include "{include}"')
         else:
