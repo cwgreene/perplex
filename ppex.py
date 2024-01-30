@@ -1,11 +1,14 @@
 import subprocess
 import argparse
 import tempfile
+import os
 
 base_includes = ["stdio.h",
                  "sys/types.h",
                  "unistd.h",
-                 "sys/socket.h"]
+                 "sys/socket.h",
+                 "sys/stat.h",
+                 "fcntl.h"]
 
 def render_headers(headers):
     return "\n".join(f"#include <{include}>" for include in headers)
@@ -21,6 +24,7 @@ def process_body(body, start_line):
         result = subprocess.check_output(["gcc", "-x", "c", temp.name, "-o", f"{temp.name}.exe"], )
         result = subprocess.check_output([f"{temp.name}.exe"])
         print(result.decode(), end="")
+        os.remove(f"{temp.name}.exe")
 
 def main():
     parser = argparse.ArgumentParser()
