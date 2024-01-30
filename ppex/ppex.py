@@ -10,8 +10,15 @@ base_includes = ["stdio.h",
                  "sys/stat.h",
                  "fcntl.h"]
 
-def render_headers(headers):
-    return "\n".join(f"#include <{include}>" for include in headers)
+def render_headers(includes):
+    headers = []
+    for include in includes:
+        if include.startswith("./") or include.startswith("../"):
+            include = os.path.join(os.getcwd(), include)
+            headers.append(f'#include "{include}"')
+        else:
+            headers.append(f'#include <{include}>')
+    return "\n".join(headers)
 
 def render_variables(variables):
     return "\n".join(f'printf("{variable}=%d\\n", {variable});' for variable in variables)
@@ -31,7 +38,7 @@ def main():
     parser.add_argument("-v", dest="variables", action="append", default=[],
         help="specify a preprocessor variable")
     parser.add_argument("-i", dest="includes", action="append", default=[],
-        help="include additional header to include like 'bob.h'")
+        help="include additional header. Use explicit relative paths for user includes.")
     options = parser.parse_args()
 
     if not options.variables:
