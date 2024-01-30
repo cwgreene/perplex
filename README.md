@@ -8,6 +8,9 @@ AF_UNIX=1
 $ ppex -v O_RDONLY -v AF_UNIX # specify multiple variables
 O_RDONLY=0
 AF_UNIX=1
+$ ppex -v O_RDONLY AF_UNIX    # specify multiple variables with a single argument
+O_RDONLY=0
+AF_UNIX=1
 $ ppex -i ./bob.h -v CHICKEN  # specify additional include and variable
 CHICKEN=5
 ```

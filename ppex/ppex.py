@@ -20,8 +20,8 @@ def render_headers(includes):
             headers.append(f'#include <{include}>')
     return "\n".join(headers)
 
-def render_variables(variables):
-    return "\n".join(f'printf("{variable}=%d\\n", {variable});' for variable in variables)
+def render_variables(variables, format_specifier):
+    return "\n".join(f'printf("{variable}={format_specifier}\\n", {variable});' for variable in variables)
     
 def process_body(body, start_line):
     with tempfile.NamedTemporaryFile() as temp:
@@ -35,16 +35,22 @@ def process_body(body, start_line):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-v", dest="variables", action="append", default=[],
+    parser.add_argument("-v", dest="variables", action="append", nargs="+", default=[],
         help="specify a preprocessor variable")
-    parser.add_argument("-i", dest="includes", action="append", default=[],
+    parser.add_argument("-vs", dest="string_variables", action="append", nargs="+", default=[],
+        help="specify a preprocessor variable and render as string")
+    parser.add_argument("-i", dest="includes", action="append", nargs="+", default=[],
         help="include additional header. Use explicit relative paths for user includes.")
     options = parser.parse_args()
 
-    if not options.variables:
+    options.variables = sum(options.variables, [])
+    options.includes = sum(options.includes, [])
+    options.string_variables = sum(options.string_variables, [])
+
+    if not (options.variables + options.string_variables):
         parser.print_help()
         return
-    
+   
     headers = base_includes[:]
     for i in options.includes:
         headers.append(i)
@@ -55,7 +61,8 @@ def main():
     for v in options.variables:
         variables.append(v)
     
-    main_body = render_variables(variables)
+    main_body = render_variables(variables, "%d")
+    main_body += render_variables(options.string_variables, "%s")
     body += "\n" + "int main() {\n" + main_body + "\nreturn 0;\n}\n"
     process_body(body, start_line)
 
