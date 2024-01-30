@@ -28,9 +28,15 @@ def process_body(body, start_line):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-v", dest="variables", action="append", default=[])
-    parser.add_argument("-i", dest="includes", action="append", default=[])
+    parser.add_argument("-v", dest="variables", action="append", default=[],
+        help="specify a preprocessor variable")
+    parser.add_argument("-i", dest="includes", action="append", default=[],
+        help="include additional header to include like 'bob.h'")
     options = parser.parse_args()
+
+    if not options.variables:
+        parser.print_help()
+        return
     
     headers = base_includes[:]
     for i in options.includes:
@@ -46,4 +52,5 @@ def main():
     body += "\n" + "int main() {\n" + main_body + "\nreturn 0;\n}\n"
     process_body(body, start_line)
 
-main()
+if __name__ == "main":
+    main()
