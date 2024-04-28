@@ -48,6 +48,8 @@ def main():
         help="include additional header. Use explicit relative paths for user includes.")
     parser.add_argument("-s", dest="system", action="append", nargs="+", default=[],
         help="path to system headers to use")
+    parser.add_argument("-n", dest="no_base_headers", action="store_true",
+        help="don't include default headers")
     options = parser.parse_args()
 
     options.variables = sum(options.variables, [])
@@ -58,8 +60,10 @@ def main():
     if not (options.variables + options.string_variables):
         parser.print_help()
         return
-   
-    headers = base_includes[:]
+    if not options.no_base_headers:
+        headers = base_includes[:]
+    else:
+        headers = []
     for i in options.includes:
         headers.append(i)
     body = render_headers(headers)
