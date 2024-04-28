@@ -61,7 +61,7 @@ def main():
     for v in options.variables:
         variables.append(v)
     
-    main_body = render_variables(variables, "%d")
+    main_body = render_variables(variables, "%u")
     main_body += render_variables(options.string_variables, "%s")
     body += "\n" + "int main() {\n" + main_body + "\nreturn 0;\n}\n"
     process_body(body, start_line)

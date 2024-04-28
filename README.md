@@ -13,6 +13,8 @@ O_RDONLY=0
 AF_UNIX=1
 $ ppex -i ./bob.h -v CHICKEN  # specify additional include and variable
 CHICKEN=5
+$ ppex -i ./bob.h -v CONST_STRING # specify additional include and variable
+CONST_STRING="doom"
 ```
 
 Note, by default, if an additional header does not use explicit relative
