@@ -8,7 +8,7 @@ base_includes = ["stdio.h",
                  "unistd.h",
                  "sys/socket.h",
                  "sys/stat.h",
-                 "fcntl.h"]
+                 "linux/fcntl.h"]
 
 def render_headers(includes):
     headers = []
@@ -23,12 +23,17 @@ def render_headers(includes):
 def render_variables(variables, format_specifier):
     return "\n".join(f'printf("{variable}={format_specifier}\\n", {variable});' for variable in variables)
     
-def process_body(body, start_line):
+def process_body(body, start_line, system_paths):
     with tempfile.NamedTemporaryFile() as temp:
         #print(body)
         temp.write(body.encode())
         temp.flush()
-        result = subprocess.check_output(["gcc", "-x", "c", temp.name, "-o", f"{temp.name}.exe"], )
+        cmdline = ["gcc", "-x", "c"]
+        if system_paths:
+            for system_path in system_paths:
+                cmdline += ["-isystem", system_path]
+        cmdline += [temp.name, "-o", f"{temp.name}.exe"]
+        result = subprocess.check_output(cmdline)
         result = subprocess.check_output([f"{temp.name}.exe"])
         print(result.decode(), end="")
         os.remove(f"{temp.name}.exe")
@@ -41,11 +46,14 @@ def main():
         help="specify a preprocessor variable and render as string")
     parser.add_argument("-i", dest="includes", action="append", nargs="+", default=[],
         help="include additional header. Use explicit relative paths for user includes.")
+    parser.add_argument("-s", dest="system", action="append", nargs="+", default=[],
+        help="path to system headers to use")
     options = parser.parse_args()
 
     options.variables = sum(options.variables, [])
     options.includes = sum(options.includes, [])
     options.string_variables = sum(options.string_variables, [])
+    options.system = sum(options.string_variables, [])
 
     if not (options.variables + options.string_variables):
         parser.print_help()
@@ -64,7 +72,7 @@ def main():
     main_body = render_variables(variables, "%u")
     main_body += render_variables(options.string_variables, "%s")
     body += "\n" + "int main() {\n" + main_body + "\nreturn 0;\n}\n"
-    process_body(body, start_line)
+    process_body(body, start_line, options.system)
 
 if __name__ == "main":
     main()
