@@ -33,7 +33,7 @@ def process_body(body, start_line, system_paths):
             for system_path in system_paths:
                 cmdline += ["-isystem", system_path]
         cmdline += [temp.name, "-o", f"{temp.name}.exe"]
-        cmdline += ["-fdiagnostics-color", "always"]
+        cmdline += ["-fdiagnostics-color=always"]
         try:
             result = subprocess.check_output(cmdline, stderr=subprocess.STDOUT)
         except subprocess.CalledProcessError as e:
