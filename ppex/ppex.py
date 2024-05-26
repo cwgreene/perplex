@@ -33,7 +33,11 @@ def process_body(body, start_line, system_paths):
             for system_path in system_paths:
                 cmdline += ["-isystem", system_path]
         cmdline += [temp.name, "-o", f"{temp.name}.exe"]
-        result = subprocess.check_output(cmdline)
+        try:
+            result = subprocess.check_output(cmdline, stderr=subprocess.STDOUT)
+        except subprocess.CalledProcessError as e:
+            print(e.stdout.decode())
+            return
         result = subprocess.check_output([f"{temp.name}.exe"])
         print(result.decode(), end="")
         os.remove(f"{temp.name}.exe")
