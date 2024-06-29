@@ -55,12 +55,22 @@ def main():
         help="path to system headers to use")
     parser.add_argument("-n", dest="no_base_headers", action="store_true",
         help="don't include default headers")
+    parser.add_argument("-vf", dest="var_file", default=None,
+        help="read variables from file")
     options = parser.parse_args()
 
     options.variables = sum(options.variables, [])
+    options.variables = sum([v.strip().split(" ") for v in options.variables], [])
     options.includes = sum(options.includes, [])
     options.string_variables = sum(options.string_variables, [])
     options.system = sum(options.string_variables, [])
+
+    if options.var_file:
+        with open(options.var_file) as varfile:
+            for line in varfile.readlines():
+                var = line.strip()
+                options.variables.append(var)
+            
 
     if not (options.variables + options.string_variables):
         parser.print_help()
